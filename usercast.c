@@ -64,7 +64,7 @@ conversation_nick_clicked(PurpleConversation* conv, gchar* nick, guint button)
           g_free(user_cast);
         }
 				else {
-					gtk_text_buffer_insert_at_cursor(PIDGIN_CONVERSATION(conv)->entry_buffer, user_cast, -1);
+					gtk_text_buffer_insert_at_cursor(PIDGIN_CONVERSATION(conv)->entry_buffer, nick, -1);
 				}
         purple_debug_info(USERCAST_PLUGIN_NAME, "Casted user `%s' to `%s'\n", nick, conv->name);
         return TRUE;
