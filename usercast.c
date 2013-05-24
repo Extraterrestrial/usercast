@@ -35,9 +35,10 @@
 static gboolean
 conversation_nick_clicked(PurpleConversation* conv, gchar* nick, guint button)
 {
-    GdkEvent* next_event = NULL;
     gchar* user_cast = NULL;
-    gint event_timeout = 100; /* milliseconds */
+    GtkTextIter it;
+    gint pos;
+    /* char c; */
 
     if (purple_conversation_get_type(conv) != PURPLE_CONV_TYPE_CHAT)
     {
@@ -54,31 +55,19 @@ conversation_nick_clicked(PurpleConversation* conv, gchar* nick, guint button)
 
     if (button != 1)
         return FALSE;
-
-    /* Wait for either GDK_2BUTTON_EVENT or something else to arrive */
-    for (; event_timeout > 0; event_timeout--)
-    {
-        if ((next_event = gdk_event_peek()))
-            break;
-        g_usleep(1000); /* 1 millisecond */
-    }
-
-    /* Pingin handles GDK_2BUTTON_PRESS separately */
-    if (next_event && next_event->type == GDK_2BUTTON_PRESS)
-    {
-        /* Remove GDK_2BUTTON_PRESS from event queue */
-        gdk_event_free(next_event);
-        gdk_event_free(gdk_event_get());
-
-        user_cast = g_strdup_printf("%s, ", nick);
-        gtk_text_buffer_insert_at_cursor(PIDGIN_CONVERSATION(conv)->entry_buffer, user_cast, -1);
-        g_free(user_cast);
-
+        
+				gtk_text_buffer_get_iter_at_mark(PIDGIN_CONVERSATION(conv)->entry_buffer, &it, gtk_text_buffer_get_insert(PIDGIN_CONVERSATION(conv)->entry_buffer));
+				pos = gtk_text_iter_get_offset(&it);
+				if(pos == 0) {
+				  user_cast = g_strdup_printf("%s: ", nick);
+          gtk_text_buffer_insert_at_cursor(PIDGIN_CONVERSATION(conv)->entry_buffer, user_cast, -1);
+          g_free(user_cast);
+        }
+				else {
+					gtk_text_buffer_insert_at_cursor(PIDGIN_CONVERSATION(conv)->entry_buffer, user_cast, -1);
+				}
         purple_debug_info(USERCAST_PLUGIN_NAME, "Casted user `%s' to `%s'\n", nick, conv->name);
         return TRUE;
-    }
-
-    return FALSE;
 }
 
 static gboolean
